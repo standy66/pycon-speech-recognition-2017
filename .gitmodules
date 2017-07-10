@@ -1,0 +1,3 @@
+[submodule "free-spoken-digit-dataset"]
+	path = free-spoken-digit-dataset
+	url = https://github.com/Jakobovski/free-spoken-digit-dataset
