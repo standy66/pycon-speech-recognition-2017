@@ -1,24 +1,30 @@
 import numpy as np
 import tensorflow as tf
 from scipy.io import wavfile
+from scipy.signal import spectrogram
 
 
-def extract_feats(sample_rate, data):
-    offset_frames = int(sample_rate * 0.01)
-    window_frames = int(sample_rate * 0.025)
+def extract_feats(sample_rate, data, window_size_msec=0.025, window_offset_msec=0.01):
+    """Extract spectrogram features from audio data."""
+    offset_frames = int(sample_rate * window_offset_msec)
+    window_frames = int(sample_rate * window_size_msec)
     fs, ts, Sxx = spectrogram(data, sample_rate, nperseg=window_frames, noverlap=window_frames-offset_frames)
     Sxx = np.log(1e-9 + Sxx)
     return fs, ts, Sxx
 
 
 def normalize(data):
+    """Normalize audio data so that samples are in range [-1.0, 1.0]."""
     if data.dtype == np.uint8:
         return (data.astype(np.float) - 128) / 128
     elif data.dtype == np.int16:
         return (data.astype(np.float)) / 2 ** 15
+    else:
+        raise ValueError("Unknown dtype")
     
     
 def read_wav(path):
+    """Read wav file referenced by path using scipy."""
     sample_rate, data = wavfile.read(path)
     data = normalize(data)
     if len(data.shape) == 1:
