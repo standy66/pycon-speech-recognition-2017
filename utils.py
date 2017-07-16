@@ -1,7 +1,10 @@
 import numpy as np
 import tensorflow as tf
+import os
+from itertools import zip_longest
 from scipy.io import wavfile
 from scipy.signal import spectrogram
+from glob import iglob
 
 
 def extract_feats(sample_rate, data, window_size_msec=0.025, window_offset_msec=0.01):
@@ -10,7 +13,7 @@ def extract_feats(sample_rate, data, window_size_msec=0.025, window_offset_msec=
     window_frames = int(sample_rate * window_size_msec)
     fs, ts, Sxx = spectrogram(data, sample_rate, nperseg=window_frames, noverlap=window_frames-offset_frames)
     Sxx = np.log(1e-9 + Sxx)
-    return fs, ts, Sxx
+    return fs, ts, Sxx.T
 
 
 def normalize(data):
@@ -30,10 +33,11 @@ def read_wav(path):
     if len(data.shape) == 1:
         data = np.reshape(data, data.shape + (1,))
     assert(len(data.shape) == 2)
-    return data
+    return sample_rate, data
 
 
 def read_dataset(path):
+    """Read free-spoken-digit-dataset at path."""
     X = []
     y = []
     for filename in iglob("{path}/*.wav".format(path=path)):
