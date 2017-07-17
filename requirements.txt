@@ -4,5 +4,4 @@ matplotlib
 numpy
 keras
 sklearn
-jupyter-notebook
-
+jupyter
